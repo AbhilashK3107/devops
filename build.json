@@ -1,0 +1,70 @@
+{
+     "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "CloudFormation template to create a Free Tier eligible RDS SQL Server Express instance in us-east-1 with master username 'avdba'.",
+  "Parameters": {
+    "DBInstanceIdentifier": {
+      "Type": "String",
+      "Default": "mssql-rds-free-tier",
+      "Description": "The name of the RDS SQL Server instance"
+    },
+     "DBName": {
+      "Type": "String",
+      "Default": "SampleDB",
+      "Description": "Initial database name"
+    },
+    "DBMasterUserPassword": {
+      "NoEcho": true,
+      "Type": "String",
+      "MinLength": 8,
+      "MaxLength": 41,
+      "AllowedPattern": "[a-zA-Z0-9@]*",
+      "Description": "The master password for the RDS instance (8-41 characters, alphanumeric + @ allowed)"
+    },
+    "VpcSecurityGroup": {
+      "Type": "String",
+      "Description": "Existing VPC security group to allow DB access"
+    },
+    "SubnetGroupName": {
+      "Type": "String",
+      "Description": "Existing DB subnet group for RDS"
+    }
+  },
+  "Resources": {
+    "RDSInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBInstanceIdentifier": { "Ref": "DBInstanceIdentifier" },
+        "AllocatedStorage": "20",
+        "DBInstanceClass": "db.t3.micro",
+        "Engine": "sqlserver-ex",
+        "EngineVersion": "15.00.4316.3.v1",
+        "MasterUsername": "avdba",
+        "MasterUserPassword": { "Ref": "DBMasterUserPassword" },
+        "DBName": { "Ref": "DBName" },
+        "PubliclyAccessible": false,
+        "VPCSecurityGroups": [{ "Ref": "VpcSecurityGroup" }],
+        "DBSubnetGroupName": { "Ref": "SubnetGroupName" },
+        "BackupRetentionPeriod": 1,
+        "MultiAZ": false,
+        "StorageType": "gp2",
+        "DeletionProtection": false,
+        "LicenseModel": "license-included"
+      }
+    }
+  },
+  "Outputs": {
+    "RDSEndpoint": {
+      "Description": "RDS SQL Server Endpoint",
+      "Value": { "Fn::GetAtt": ["RDSInstance", "Endpoint.Address"] }
+    },
+    "RDSInstanceID": {
+      "Description": "RDS SQL Server Instance ID",
+      "Value": { "Ref": "RDSInstance" }
+    }
+  }
+}
+
+
+
+
+
